@@ -9,6 +9,7 @@ import  { useState } from 'react';
 export default function Series() {
   const [modalVisible, setModalVisible] = useState(false);
   const [filteredSeries, setFilteredSeries] = useState([]);
+  const [selectedSerie, setSelectedSerie] = useState(null);
 
   // Accede a la propiedad "entries" del objeto JSON
   const seriesData = jsonData.entries.filter(item => item.programType === 'series');
@@ -32,6 +33,11 @@ export default function Series() {
     }
     setFilteredSeries(sortedSeries);
     hideFilterModal();
+  };
+
+  const openSerieDetails = (serie) => {
+    setSelectedSerie(serie);
+    setModalVisible(true);
   };
 
   return (
@@ -58,7 +64,10 @@ export default function Series() {
         keyExtractor={(item) => item.title}
         numColumns={3}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.seriesItem}>
+          <TouchableOpacity
+            style={styles.seriesItem}
+            onPress={() => openSerieDetails(item)}
+          >
             <Image
               style={styles.seriesImage}
               source={{ uri: item.images['Poster Art'].url }}
@@ -77,30 +86,22 @@ export default function Series() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Filtros</Text>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('az')}
-            >
-              <Text>A-Z</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('za')}
-            >
-              <Text>Z-A</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('year')}
-            >
-              <Text>Por año</Text>
-            </TouchableHighlight>
+            {selectedSerie && (
+              <>
+                <Text style={styles.modalTitle}>{selectedSerie.title}</Text>
+                <Text>{selectedSerie.description}</Text>
+                <Text>{selectedSerie.releaseYear}</Text>
+                <Image
+                  source={{ uri: selectedSerie.images['Poster Art'].url }}
+                  style={styles.modalImage}
+                />
+              </>
+            )}
             <TouchableHighlight
               style={styles.modalCloseButton}
               onPress={hideFilterModal}
             >
-              <Text>Cerrar</Text>
+              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
             </TouchableHighlight>
           </View>
         </View>

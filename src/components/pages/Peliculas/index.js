@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList, Modal, TouchableHighlight } from 'react-native';
+import { View, Text, TouchableOpacity, Image, FlatList, Modal, TouchableHighlight, StyleSheet } from 'react-native';
 import { styles  } from '../../styles/peliculas';
+
 const jsonData = require ('../../../../data/sample.json');
 import  { useState } from 'react';
-
 
 
 export default function Peliculas () {
   const [modalVisible, setModalVisible] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   // Accede a la propiedad "entries" del objeto JSON
   const moviesData = jsonData.entries.filter(item => item.programType === 'movie');
@@ -32,6 +33,11 @@ export default function Peliculas () {
     }
     setFilteredMovies(sortedSeries);
     hideFilterModal();
+  };
+
+  const openMovieDetails = (movie) => {
+    setSelectedMovie(movie);
+    setModalVisible(true);
   };
 
   return (
@@ -58,7 +64,10 @@ export default function Peliculas () {
         keyExtractor={(item) => item.title}
         numColumns={3}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.seriesItem}>
+          <TouchableOpacity
+            style={styles.seriesItem}
+            onPress={() => openMovieDetails(item)}
+          >
             <Image
               style={styles.seriesImage}
               source={{ uri: item.images['Poster Art'].url }}
@@ -77,30 +86,22 @@ export default function Peliculas () {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Filtros</Text>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('az')}
-            >
-              <Text>A-Z</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('za')}
-            >
-              <Text>Z-A</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.modalButton}
-              onPress={() => filterSeries('year')}
-            >
-              <Text>Por año</Text>
-            </TouchableHighlight>
+            {selectedMovie && (
+              <>
+                <Text style={styles.modalTitle}>{selectedMovie.title}</Text>
+                <Text>{selectedMovie.description}</Text>
+                <Text>{selectedMovie.releaseYear}</Text>
+                <Image
+                  source={{ uri: selectedMovie.images['Poster Art'].url }}
+                  style={styles.modalImage}
+                />
+              </>
+            )}
             <TouchableHighlight
               style={styles.modalCloseButton}
               onPress={hideFilterModal}
             >
-              <Text>Cerrar</Text>
+              <Text style={styles.modalCloseButtonText}>Cerrar</Text>
             </TouchableHighlight>
           </View>
         </View>
